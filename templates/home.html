@@ -1,0 +1,16 @@
+    {% extends "base.html" %}
+    {% block content %}
+        {% for movie in movies %}
+            <article class="media content-section">
+              <div class="media-body">
+                <div class="article-metadata">
+                     <a class="mr-2" href="#">{{ movie.year }}</a>
+                </div>
+                <h2><a class="article-title" href="#">{{ movie.title }}</a></h2>
+                <p class="article-content">{{ movie.plot }}</p>
+                  <p class="article-actors">{{ movie.cast }}</p>
+                  <i>Date added <small class="text-muted">{{ movie.date_posted }}</small></i>
+              </div>
+            </article>
+        {% endfor %}
+    {% endblock content %}
