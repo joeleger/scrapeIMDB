@@ -1,9 +1,10 @@
-from flask import Flask, render_template, url_for, flash, redirect
-from forms import RegistrationForm, LoginForm
-from os import environ
+from flask import render_template, url_for, flash, redirect
+from scrapeIMDB import app
+from scrapeIMDB.forms import RegistrationForm, LoginForm
+from scrapeIMDB.models import User, Movie
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = environ.get("SECRET_KEY")
+
+
 
 movies = [
     {
@@ -34,7 +35,7 @@ def about():
     return render_template('about.html', title='About')
 
 
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -44,7 +45,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -54,7 +55,3 @@ def login():
         else:
             flash(f'Login was unsuccessful! Please check username and password.', 'danger')
     return render_template('login.html', title='Login', form=form)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

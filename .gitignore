@@ -81,9 +81,11 @@ celerybeat-schedule
 
 # dotenv
 .env
+.flaskenv
+
 
 # virtualenv
-imdb/
+indigo/
 .venv
 venv/
 ENV/
