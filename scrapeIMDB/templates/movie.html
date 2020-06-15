@@ -1,0 +1,44 @@
+    {% extends "base.html" %}
+    {% block content %}
+        <article class="media content-section">
+            <img class="img-responsive mt-4 mr-4" src="{{ movie.poster_url }}" alt="{{movie.title}}">          <div class="media-body">
+            <div class="article-metadata">
+                 <a class="mr-2" href="#">Year - {{ movie.year }} Rating - {{ movie.rating}}</a>
+                {% if movie.author == current_user %}
+                    <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_movie',movie_id=movie.id) }}">Update</a>
+                    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                </div>
+                {% endif %}
+            </div>
+                <h2 class="article-title">{{ movie.title }}</h2>
+                <p class="article-content"><b>Genre:</b> {{ movie.genre }}</p>
+                <p class="article-content"><b>Plot:</b> {{ movie.plot }}</p>
+                <p class="article-actors"><b>Actors:</b> {{ movie.actors }}</p>
+                <p class="article-content"><b>Directors:</b> {{ movie.directors }}</p>
+                <p class="article-content"><b>Written by:</b> {{ movie.writers }}</p>
+                <p class="article-content"><b>Running time:</b> {{ running_time }}</p>
+                <p class="article-content"><b>Box Office:</b> {{ box_office }}</p>
+                <i>Added by {{ movie.author.username }} On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
+          </div>
+        </article>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Delete Movie?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <form action="{{ url_for('delete_movie',movie_id=movie.id) }}" method="POST">
+                <input type="submit" class="btn btn-danger" value="Delete">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock content %}

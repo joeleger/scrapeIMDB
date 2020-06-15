@@ -2,14 +2,15 @@
     {% block content %}
         {% for movie in movies %}
             <article class="media content-section">
+                <img class="img-responsive mt-4 mr-4" src={{movie.poster_url }} alt="{{movie.title}}">
               <div class="media-body">
                 <div class="article-metadata">
                      <a class="mr-2" href="#">{{ movie.year }}</a>
                 </div>
-                <h2><a class="article-title" href="#">{{ movie.title }}</a></h2>
+                <h2><a class="article-title" href="{{ url_for('movie', movie_id=movie.id) }}">{{ movie.title }}</a></h2>
                 <p class="article-content">{{ movie.plot }}</p>
-                  <p class="article-actors">{{ movie.cast }}</p>
-                  <i>Date added <small class="text-muted">{{ movie.date_posted }}</small></i>
+                  <p class="article-actors">{{ movie.actors }}</p>
+                  <i>Added by {{ movie.author.username }} On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
               </div>
             </article>
         {% endfor %}

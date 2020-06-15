@@ -38,23 +38,7 @@ class Movie(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    def __init__(self, _imdb_id, _file_path, _title, _year,
-                 _genre, _rating, _actors, _directors, _writers,
-                 _plot, _runtime, _poster_url, _box_office, _user_id):
-        self.imdb_id = _imdb_id
-        self.file_path = _file_path
-        self.title = _title
-        self.year = _year
-        self.genre = _genre
-        self.rating = _rating
-        self.actors = _actors
-        self.directors = _directors
-        self.writers = _writers
-        self.plot = _plot
-        self.runtime = _runtime
-        self.poster_url = _poster_url
-        self.box_office = _box_office
-        self.user_id = _user_id
+
 
     def __repr__(self):
         return f"Movie('{self.title}', '{self.year}', '{self.last_updated}')"

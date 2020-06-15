@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 load_dotenv('.env')
 app = Flask(__name__)
+app.config['FLAT_FILE_SOURCE'] = 'F:\\Video\Movies\\_Flat_Structure'
 app.config['SECRET_KEY'] = environ.get("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movieListing.db'
 db = SQLAlchemy(app)
