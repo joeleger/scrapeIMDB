@@ -19,7 +19,7 @@
                 <p class="article-content"><b>Written by:</b> {{ movie.writers }}</p>
                 <p class="article-content"><b>Running time:</b> {{ running_time }}</p>
                 <p class="article-content"><b>Box Office:</b> {{ box_office }}</p>
-                <i>Added by {{ movie.author.username }} On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
+                <i>Added by <a class="mr-2" href="{{ url_for('user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
           </div>
         </article>
     <!-- Modal -->

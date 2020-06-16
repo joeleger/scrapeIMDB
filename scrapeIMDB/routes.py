@@ -15,7 +15,8 @@ ia = imdb.IMDb()
 @app.route('/')
 @app.route('/home')
 def home():
-    movies = Movie.query.all()
+    page = request.args.get('page', 1, type=int)
+    movies = Movie.query.order_by(Movie.year.desc(), Movie.title.desc()).paginate(page=page, per_page=5)
     return render_template('home.html', movies=movies)
 
 
@@ -298,3 +299,13 @@ def scrape_imdb():
         return redirect(url_for('home'))
     except Exception as err:
         print(err)
+
+
+@app.route('/user/<string:username>')
+def user_movies(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    movies = Movie.query.filter_by(author=user)\
+                .order_by(Movie.year.desc(), Movie.title.desc())\
+                .paginate(page=page, per_page=5)
+    return render_template('user_movies.html', movies=movies, user=user)
