@@ -101,12 +101,12 @@ def account():
 def new_movie():
     form = NewMovieForm()
     if form.validate_on_submit():
-        movie = Movie(imdb_id=form.imdb_id.data, file_path=form.file_path.data, title=form.title.data,
-                      year=form.year.data, genre=form.genre.data, rating=form.rating.data, actors=form.actors.data,
-                      directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
-                      runtime=form.runtime.data,
-                      poster_url=form.poster_url.data, box_office=form.box_office.data, author=current_user)
-        db.session.add(movie)
+        film = Movie(imdb_id=form.imdb_id.data, file_path=form.file_path.data, title=form.title.data,
+                     year=form.year.data, genre=form.genre.data, rating=form.rating.data, actors=form.actors.data,
+                     directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
+                     runtime=form.runtime.data,
+                     poster_url=form.poster_url.data, box_office=form.box_office.data, author=current_user)
+        db.session.add(film)
         db.session.commit()
         flash(f'Your movie has been added!', 'success')
         return redirect(url_for('home'))
@@ -121,7 +121,11 @@ def convert(n):
 def movie(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
     running_time = convert(_movie.runtime * 60)
-    box_office = '${:,.2f}'.format(_movie.box_office)
+    if _movie.box_office is None:
+        box_office = 0.0
+    else:
+        box_office = '${:,.2f}'.format(_movie.box_office)
+
     return render_template("movie.html", title=_movie.title, movie=_movie, running_time=running_time,
                            box_office=box_office)
 
@@ -208,17 +212,17 @@ def get_files(source):
 def get_movie_id(title, year):
     try:
         movies = ia.search_movie(title)
-        for index, movie in enumerate(movies):
-            if str(title.lower()) == movie['title'].lower().replace(':', '') and str(year) == str(movie['year']):
-                return movie.movieID
-            elif str(title.lower()) == 'Miracle at St  Anna'.lower() and str(year) == str(movie['year']):
-                return movie.movieID
-            elif str(title.lower()) == 'Mr Church'.lower() and str(year) == str(movie['year']):
-                return movie.movieID
-            elif str(title.lower()) == 'R I P D '.lower() and str(year) == str(movie['year']):
-                return movie.movieID
-            elif str(title.lower()) == 'The Man from U N C L E'.lower() and str(year) == str(movie['year']):
-                return movie.movieID
+        for index, film in enumerate(movies):
+            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '') and str(year) == str(film['year']):
+                return film.movieID
+            elif str(title.lower()) == 'Miracle at St  Anna'.lower() and str(year) == str(film['year']):
+                return film.movieID
+            elif str(title.lower()) == 'Mr Church'.lower() and str(year) == str(film['year']):
+                return film.movieID
+            elif str(title.lower()) == 'R I P D '.lower() and str(year) == str(film['year']):
+                return film.movieID
+            elif str(title.lower()) == 'The Man from U N C L E'.lower() and str(year) == str(film['year']):
+                return film.movieID
             else:
                 continue
         return None
@@ -234,29 +238,50 @@ def get_movie(_id):
         print(err)
 
 
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 def create_movie(file):
     try:
         movie_title = str(file['title'])
         movie_year = file['year']
         movie_path = file['path']
-        imdb_movie_id = get_movie_id(movie_title, movie_year)
-        movie_data = get_movie(imdb_movie_id)
-        box_office = movie_data['box office']['Cumulative Worldwide Gross']
-        actors_string = ', '.join(map(str, movie_data['cast']))
-        directors_string = ', '.join(map(str, movie_data['directors']))
-        writers_string = ', '.join(map(str, movie_data['writer']))
-        year_converted = int(movie_data['year'])
+        is_added = Movie.get_movie_by_title_year(movie_title, int(movie_year))
+        if is_added is None:
+            # paranoia check to see if we can find an imdb_id based upon the title in file system
+            imdb_id_str = get_movie_id(movie_title, movie_year)
+            is_added = Movie.get_movie_by_imdb_id(imdb_id_str)
 
-        _movie = Movie(imdb_id=imdb_movie_id, file_path=movie_path, title=movie_data['title'], year=year_converted,
-                       genre=movie_data['genre'], rating=movie_data['rating'], actors=actors_string,
-                       directors=directors_string,
-                       writers=writers_string, plot=movie_data['plot'], runtime=int(movie_data['runtimes']),
-                       poster_url=movie_data['cover url'], box_office=float(box_office), author=current_user)
+        if is_added is None:
+            imdb_movie_id = get_movie_id(movie_title, movie_year)
+            imdb_movie_data = get_movie(imdb_movie_id)
+            actors_string = ', '.join(map(str, imdb_movie_data['cast']))
+            directors_string = ', '.join(map(str, imdb_movie_data['directors']))
+            writers_string = ', '.join(map(str, imdb_movie_data['writer']))
+            plot_converted = imdb_movie_data['plot'][0]
+            genre_string = ', '.join(map(str, imdb_movie_data['genre']))
+            year_converted = int(movie_year)
+            runtime_converted = int(imdb_movie_data['runtimes'][0])
 
-        db.session.add(_movie)
-        db.session.commit()
+            movie_item = Movie(imdb_id=imdb_movie_id, file_path=movie_path, title=imdb_movie_data['title'],
+                               year=year_converted, genre=genre_string, rating=imdb_movie_data['rating'],
+                               actors=actors_string, directors=directors_string, writers=writers_string,
+                               plot=plot_converted, runtime=runtime_converted, poster_url=imdb_movie_data['cover url'],
+                               box_office=None, author=current_user)
+
+            db.session.add(movie_item)
+            db.session.commit()
     except Exception as err:
+        db.session.rollback()
         print(err)
+        raise
+    finally:
+        db.session.close()  # optional, depends on use case
 
 
 @app.route('/movie/scrape')
@@ -270,6 +295,6 @@ def scrape_imdb():
         files = get_files(dir_source)
         for file in files:
             create_movie(file)
-            return redirect(url_for('home'))
+        return redirect(url_for('home'))
     except Exception as err:
         print(err)

@@ -5,12 +5,12 @@
                 <img class="img-responsive mt-4 mr-4" src={{movie.poster_url }} alt="{{movie.title}}">
               <div class="media-body">
                 <div class="article-metadata">
-                     <a class="mr-2" href="#">{{ movie.year }}</a>
+                     <a class="mr-2" href="#">{{ movie.year }} Rating - {{ movie.rating}} </a>
                 </div>
                 <h2><a class="article-title" href="{{ url_for('movie', movie_id=movie.id) }}">{{ movie.title }}</a></h2>
                 <p class="article-content">{{ movie.plot }}</p>
                   <p class="article-actors">{{ movie.actors }}</p>
-                  <i>Added by {{ movie.author.username }} On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
+                  <small class="text-muted">Added by {{ movie.author.username }}, on {{ movie.last_updated.strftime('%Y-%m-%d') }}</small>
               </div>
             </article>
         {% endfor %}
