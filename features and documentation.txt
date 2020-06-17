@@ -1,0 +1,14 @@
+1. Delete from app also removes file from hard drive
+2. Launch VLC to play film from the app
+3. Scrape subfolders for movie content function
+4. Scrape TV Series content
+5. Scrape Music content.
+
+
+Required naming for movie files.
+file name needs to be in following format:
+Title of movie + space(year).extension
+We support .mp4, .mkv and .avi extensions
+
+Configuration
+Set your path locations for movie scraping for flat folder(no subfolders) and for layout structures that use subfolders. Presently no TV series capability.
