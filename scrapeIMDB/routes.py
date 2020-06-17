@@ -126,9 +126,12 @@ def movie(movie_id):
         box_office = 0.0
     else:
         box_office = '${:,.2f}'.format(_movie.box_office)
+    actor_list = []
+    actor_list = _movie.actors.split(',')
+    actors = ', '.join(map(str,actor_list[0:11]))
 
     return render_template("movie.html", title=_movie.title, movie=_movie, running_time=running_time,
-                           box_office=box_office)
+                           box_office=box_office, actors=actors)
 
 
 @app.route('/movie/<int:movie_id>/update', methods=['GET', 'POST'])
@@ -305,7 +308,7 @@ def scrape_imdb():
 def user_movies(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    movies = Movie.query.filter_by(author=user)\
-                .order_by(Movie.year.desc(), Movie.title.desc())\
-                .paginate(page=page, per_page=5)
+    movies = Movie.query.filter_by(author=user) \
+        .order_by(Movie.year.desc(), Movie.title.desc()) \
+        .paginate(page=page, per_page=5)
     return render_template('user_movies.html', movies=movies, user=user)

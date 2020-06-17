@@ -9,7 +9,6 @@
                 </div>
                 <h2><a class="article-title" href="{{ url_for('movie', movie_id=movie.id) }}">{{ movie.title }}</a></h2>
                 <p class="article-content">{{ movie.plot }}</p>
-                  <p class="article-actors">{{ movie.actors }}</p>
                   <small class="text-muted">Added by <a class="mr-2" href="{{ url_for('user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, on {{ movie.last_updated.strftime('%Y-%m-%d') }}</small>
               </div>
             </article>
