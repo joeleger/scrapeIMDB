@@ -65,3 +65,19 @@ class NewMovieForm(FlaskForm):
     poster_url = StringField('Poster Url', validators=[DataRequired(), Length(max=500)])
     box_office = FloatField('Box Office', validators=[DataRequired()])
     submit = SubmitField('Save')
+
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError('That email does not exist. Please register!')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')

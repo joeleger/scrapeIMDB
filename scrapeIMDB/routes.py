@@ -3,11 +3,13 @@ from flask_login import login_user, current_user, logout_user, login_required
 import os
 from PIL import Image
 import secrets
-from scrapeIMDB import app, db, bcrypt
-from scrapeIMDB.forms import RegistrationForm, LoginForm, UpdateAccountForm, NewMovieForm
+from scrapeIMDB import app, db, bcrypt, mail
+from scrapeIMDB.forms import RegistrationForm, LoginForm, UpdateAccountForm, NewMovieForm, RequestResetForm, \
+    ResetPasswordForm
 from scrapeIMDB.models import User, Movie
 import datetime
 import imdb
+from flask_mail import Message
 
 ia = imdb.IMDb()
 
@@ -128,7 +130,7 @@ def movie(movie_id):
         box_office = '${:,.2f}'.format(_movie.box_office)
     actor_list = []
     actor_list = _movie.actors.split(',')
-    actors = ', '.join(map(str,actor_list[0:11]))
+    actors = ', '.join(map(str, actor_list[0:11]))
 
     return render_template("movie.html", title=_movie.title, movie=_movie, running_time=running_time,
                            box_office=box_office, actors=actors)
@@ -312,3 +314,47 @@ def user_movies(username):
         .order_by(Movie.year.desc(), Movie.title.desc()) \
         .paginate(page=page, per_page=5)
     return render_template('user_movies.html', movies=movies, user=user)
+
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset Request',
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[user.email])
+    msg.body = f'''To reset your password visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent to reset your password with instructions.', 'info')
+        return redirect(url_for('login'))
+    return render_template('reset_request.html', title='Reset Password', form=form)
+
+
+@app.route('/reset_password<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an expired or invalid token', 'warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash(f'Your password has been changed. Please login.', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_token.html', title='Reset Password', form=form)
