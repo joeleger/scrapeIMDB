@@ -6,7 +6,7 @@
                  <a class="mr-2" href="#">Year - {{ movie.year }} Rating - {{ movie.rating}}</a>
                 {% if movie.author == current_user %}
                     <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_movie',movie_id=movie.id) }}">Update</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('movies.update_movie',movie_id=movie.id) }}">Update</a>
                     <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
                 </div>
                 {% endif %}
@@ -19,7 +19,7 @@
                 <p class="article-content"><b>Written by:</b> {{ movie.writers }}</p>
                 <p class="article-content"><b>Running time:</b> {{ running_time }}</p>
                 <p class="article-content"><b>Box Office:</b> {{ box_office }}</p>
-                <i>Added by <a class="mr-2" href="{{ url_for('user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
+                <i>Added by <a class="mr-2" href="{{ url_for('users.user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, On <small class="text-muted">{{ movie.last_updated.strftime('%Y-%m-%d') }}</small></i>
           </div>
         </article>
     <!-- Modal -->
@@ -34,7 +34,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <form action="{{ url_for('delete_movie',movie_id=movie.id) }}" method="POST">
+            <form action="{{ url_for('movies.delete_movie',movie_id=movie.id) }}" method="POST">
                 <input type="submit" class="btn btn-danger" value="Delete">
             </form>
           </div>

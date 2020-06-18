@@ -7,18 +7,18 @@
                 <div class="article-metadata">
                      <a class="mr-2" href="#">{{ movie.year }} Rating - {{ movie.rating}} </a>
                 </div>
-                <h2><a class="article-title" href="{{ url_for('movie', movie_id=movie.id) }}">{{ movie.title }}</a></h2>
+                <h2><a class="article-title" href="{{ url_for('movies.movie', movie_id=movie.id) }}">{{ movie.title }}</a></h2>
                 <p class="article-content">{{ movie.plot }}</p>
-                  <small class="text-muted">Added by <a class="mr-2" href="{{ url_for('user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, on {{ movie.last_updated.strftime('%Y-%m-%d') }}</small>
+                  <small class="text-muted">Added by <a class="mr-2" href="{{ url_for('users.user_movies',username=movie.author.username) }}">{{ movie.author.username }}</a>, on {{ movie.last_updated.strftime('%Y-%m-%d') }}</small>
               </div>
             </article>
         {% endfor %}
          {% for page_num in movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
             {% if movies.page == page_num %}
-                <a class="btn btn-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+                <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
             {% else %}
-                <a class="btn btn-outline-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
             {% endif %}
         {% else %}
             ...

@@ -1,27 +1,38 @@
-from os import environ
 from dotenv import load_dotenv
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from scrapeIMDB.config import Config
 
 load_dotenv('.env')
-app = Flask(__name__)
-app.config['FLAT_FILE_SOURCE'] = 'F:\\Video\Movies\\_Flat_Structure'
-app.config['SECRET_KEY'] = environ.get("SECRET_KEY")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movieListing.db'
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+
+db = SQLAlchemy()
+migrate = Migrate()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
+login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = environ.get('EMAIL_USER')
-app.config['MAIL_PASSWORD'] = environ.get('EMAIL_PASS')
-mail = Mail(app)
-from scrapeIMDB import routes
+mail = Mail()
+
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+
+    from scrapeIMDB.users.routes import users
+    from scrapeIMDB.movies.routes import movies
+    from scrapeIMDB.main.routes import main
+    app.register_blueprint(users)
+    app.register_blueprint(movies)
+    app.register_blueprint(main)
+
+    return app
