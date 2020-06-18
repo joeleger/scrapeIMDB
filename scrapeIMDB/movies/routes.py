@@ -1,6 +1,7 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint, current_app)
 from flask_login import current_user, login_required
+import os
 from scrapeIMDB import db
 from scrapeIMDB.models import Movie
 from scrapeIMDB.movies.forms import NewMovieForm
@@ -89,10 +90,20 @@ def delete_movie(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
     if _movie.author != current_user:
         abort(403)
-    db.session.delete(_movie)
-    db.session.commit()
-    flash(f'Your movie is deleted!', 'success')
-    return redirect(url_for('main.home'))
+    file = _movie.file_path
+    try:
+        os.remove(file)
+        db.session.delete(_movie)
+        db.session.commit()
+        flash(f'Your movie is deleted!', 'success')
+    except OSError as e:
+        flash(f'Error: {e.filename} - {e.strerror}', 'danger')
+        # remove the db record even if the file does not exist in file system
+        db.session.delete(_movie)
+        db.session.commit()
+        flash(f'Your movie is deleted!', 'success')
+    finally:
+        return redirect(url_for('main.home'))
 
 
 @movies.route('/movie/scrape')
