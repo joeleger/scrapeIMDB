@@ -1,8 +1,9 @@
-1. Delete from app also removes file from hard drive
-2. Launch VLC to play film from the app
-3. Scrape subfolders for movie content function
-4. Scrape TV Series content
-5. Scrape Music content.
+. Delete from app also removes file from hard drive
+. Search facility
+. Launch VLC to play film from the app
+. Scrape sub-folders for movie content function
+. Scrape TV Series content
+. Scrape Music content.
 
 
 Required naming for movie files.
