@@ -21,7 +21,6 @@ mail = Mail()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
-
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
@@ -31,8 +30,10 @@ def create_app(config_class=Config):
     from scrapeIMDB.users.routes import users
     from scrapeIMDB.movies.routes import movies
     from scrapeIMDB.main.routes import main
+    from scrapeIMDB.errors.handlers import errors
     app.register_blueprint(users)
     app.register_blueprint(movies)
     app.register_blueprint(main)
+    app.register_blueprint(errors)
 
     return app
