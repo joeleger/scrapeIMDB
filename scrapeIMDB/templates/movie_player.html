@@ -1,0 +1,48 @@
+    {% extends "base.html" %}
+    {% block content %}
+        <article class="media content-section">
+            <img class="img-responsive mt-4 mr-4" src="{{ movie.poster_url }}" alt="{{movie.title}}">
+            <div class="media-body">
+            <div class="article-metadata">
+                 <a class="mr-2" href="#">Year - {{ movie.year }} Rating - {{ movie.rating}}</a>
+            </div>
+                <h2 class="article-title">{{ movie.title }}</h2>
+                    <div class="media-body">
+                        <div id="message"></div>
+                      <input type="file" accept="video/*"/>
+                        <video width="320" height="240" controls autoplay></video>
+                    <script language="JavaScript">
+                            (function localFileVideoPlayer() {
+                                'use strict'
+                              var URL = window.URL || window.webkitURL
+                              var displayMessage = function (message, isError) {
+                                var element = document.querySelector('#message')
+                                element.innerHTML = message
+                                element.className = isError ? 'error' : 'info'
+                              }
+                              var playSelectedFile = function (event) {
+                                var file = this.files[0]
+                                var type = file.type
+                                var videoNode = document.querySelector('video')
+                                var canPlay = videoNode.canPlayType(type)
+                                if (canPlay === '') canPlay = 'no'
+                                var message = 'Can play type "' + type + '": ' + canPlay
+                                var isError = canPlay === 'no'
+                                displayMessage(message, isError)
+
+                                if (isError) {
+                                  return
+                                }
+
+                                var fileURL = URL.createObjectURL(file)
+                                videoNode.src = fileURL
+                              }
+                              var inputNode = document.querySelector('input')
+                              inputNode.addEventListener('change', playSelectedFile, false)
+                            })()
+                    </script>
+
+    </div>
+</div>
+</article>
+    {% endblock content %}

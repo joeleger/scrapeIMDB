@@ -16,5 +16,4 @@ class NewMovieForm(FlaskForm):
     plot = TextAreaField('Plot', validators=[DataRequired()])
     runtime = IntegerField('Runtime', validators=[DataRequired()])
     poster_url = StringField('Poster Url', validators=[DataRequired(), Length(max=500)])
-    box_office = FloatField('Box Office', validators=[DataRequired()])
     submit = SubmitField('Save')

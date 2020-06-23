@@ -1,11 +1,13 @@
-from flask import (render_template, url_for, flash,
-                   redirect, request, abort, Blueprint, current_app)
-from flask_login import current_user, login_required
 import os
+from flask import (render_template, url_for, flash,
+                   redirect, request, abort, Blueprint)
+from flask_login import current_user, login_required
+
 from scrapeIMDB import db
+from scrapeIMDB.config import Config
 from scrapeIMDB.models import Movie
 from scrapeIMDB.movies.forms import NewMovieForm
-from scrapeIMDB.movies.utils import convert, get_files, create_movie
+from scrapeIMDB.movies.utils import convert, get_files, create_movie, get_file_sets
 
 movies = Blueprint('movies', __name__)
 
@@ -19,7 +21,7 @@ def new_movie():
                      year=form.year.data, genre=form.genre.data, rating=form.rating.data, actors=form.actors.data,
                      directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
                      runtime=form.runtime.data,
-                     poster_url=form.poster_url.data, box_office=form.box_office.data, author=current_user)
+                     poster_url=form.poster_url.data, author=current_user)
         db.session.add(film)
         db.session.commit()
         flash(f'Your movie has been added!', 'success')
@@ -31,15 +33,11 @@ def new_movie():
 def movie(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
     running_time = convert(_movie.runtime * 60)
-    if _movie.box_office is None:
-        box_office = 0.0
-    else:
-        box_office = '${:,.2f}'.format(_movie.box_office)
     actor_list = _movie.actors.split(',')
     actors = ', '.join(map(str, actor_list[0:11]))
 
     return render_template("movie.html", title=_movie.title, movie=_movie, running_time=running_time,
-                           box_office=box_office, actors=actors)
+                           actors=actors)
 
 
 @movies.route('/movie/<int:movie_id>/update', methods=['GET', 'POST'])
@@ -62,7 +60,6 @@ def update_movie(movie_id):
         _movie.plot = form.plot.data
         _movie.runtime = form.runtime.data
         _movie.poster_url = form.poster_url.data
-        _movie.box_office = form.box_office.data
         db.session.commit()
         flash(f'Your movie has been updated!', 'success')
         return redirect(url_for('movies.movie', movie_id=_movie.id))
@@ -79,7 +76,6 @@ def update_movie(movie_id):
         form.plot.data = _movie.plot
         form.runtime.data = _movie.runtime
         form.poster_url.data = _movie.poster_url
-        form.box_office.data = _movie.box_office
     return render_template('create_movie.html', title='Update Movie',
                            form=form, legend='Update Movie')
 
@@ -109,14 +105,23 @@ def delete_movie(movie_id):
 @movies.route('/movie/scrape')
 @login_required
 def scrape_imdb():
-    # Loop through source directory
-    # Parse the Title separating the Year
-    # get the flat content into a list of dictionaries
+    flat_dir_src = Config.FLAT_FILE_SOURCE
+    coll_dir_src = Config.COLLECTIONS_FILE_SOURCE
     try:
-        dir_source = current_app.config['FLAT_FILE_SOURCE']
-        files = get_files(dir_source)
+        files = get_files(flat_dir_src)
         for file in files:
             create_movie(file)
+
+        files2 = get_file_sets(coll_dir_src)
+        for file2 in files2:
+            create_movie(file2)
         return redirect(url_for('main.home'))
     except Exception as err:
         print(err)
+
+
+@movies.route('/movie/player/<int:movie_id>')
+def movie_player(movie_id):
+    _movie = Movie.query.get_or_404(movie_id)
+
+    return render_template('movie_player.html', movie=_movie, title=_movie.title,)
