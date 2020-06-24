@@ -18,7 +18,7 @@ database various attributes about the film, namely:
 Goal is to add more user input configuration.
 There is a configuration class called Config. Set your file locations that you would like to scrape in this class. 
 
-Requirements:
+# Requirements:
 File types: We use the HTML <video> element to render video on a web page. This HTML element will render the following film types:
 MP4. WEBM and OGG.
 Naming convention for motion picture files.
