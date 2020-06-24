@@ -102,8 +102,8 @@ def get_rev_movie_id(title, year, ctr):
         print(f'DEBUG -Title - {ctr} - {title}')
         movies = ia.search_movie(title)
         for index, film in enumerate(movies):
-            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' '). \
-                    replace('... ', ' ').rstrip() \
+            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' ').\
+                    replace('...', '  ').rstrip() \
                     and str(year) == str(film['year']) \
                     and film['kind'].lower() == 'movie' \
                     or film['kind'].lower() == 'tv movie' \
@@ -115,7 +115,6 @@ def get_rev_movie_id(title, year, ctr):
 
     except ia.IMDbError as err:
         print(err)
-        raise
 
 
 def get_movie(_id):
@@ -125,11 +124,12 @@ def get_movie(_id):
         print(err)
 
 
-# title = "R.I.P.D."
-# title = title.replace('.', ' ')
+title = "Once Upon a Time... in Hollywood"
+title = title.replace('.', ' ').rstrip()
+
 
 # # 1583421
-# imdb_id = get_rev_movie_id(title, 2013,1)
+# imdb_id = get_movie_id(title, 2019, 1)
 # movie = get_movie(imdb_id)
 # print(imdb_id)
 # print(movie['title'])
@@ -148,14 +148,15 @@ def get_movie(_id):
 # print(ctr)
 
 def check_db_title_year():
-    source = Config.FLAT_FILE_SOURCE
+    source = Config.DEBUG_FILE_LOCATION
     files = get_file_sets(source)
     ctr = 0
     for file in files:
         ctr += 1
         _id = get_rev_movie_id(str(file['title']), int(file['year']), ctr)
         film = get_movie(_id)
-        if file['title'].lower() != film['title'].lower().replace(':', '').replace('.', ' ').replace('... ', ' ').rstrip():
+        if file['title'].lower() != film['title'].lower().replace(':', '').replace('.', ' '). \
+                replace('...', '   ').rstrip():
             print(f'******WARNING**** Movie is potentially missing {file["title"]}')
 
 
