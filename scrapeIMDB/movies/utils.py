@@ -42,7 +42,7 @@ def get_file_sets(source):
     for subdir, dirs, files in os.walk(source):
         for filename in files:
             file_path = subdir + os.sep + filename
-            if file_path.endswith(".mp4") or file_path.endswith(".mkv") or file_path.endswith(".avi"):
+            if file_path.endswith(".mp4") or file_path.endswith(".webm") or file_path.endswith(".ogg"):
                 file_title = os.path.splitext(filename)[0]  # remove the extension
                 file_title = file_title.replace(".", " ")  # Remove any periods in text of title
                 pos_of_first_brace = len(file_title) - 5
