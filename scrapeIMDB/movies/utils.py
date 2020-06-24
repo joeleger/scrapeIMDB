@@ -56,64 +56,13 @@ def get_file_sets(source):
     return file_list
 
 
-def get_movie_id(title, year):
-    try:
-        print(f'DEBUG getting movie id for - {title} - {year}')
-        movies = ia.search_movie(title)
-        for index, film in enumerate(movies):
-            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '') \
-                    and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie' or film['kind'].lower() == 'tv movie' \
-                    or film['kind'].lower() == 'video movie':
-                return film.movieID
-            elif str(title.lower()) == 'Miracle at St  Anna'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'Mr Church'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'R I P D '.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'The Man from U N C L E'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'Guardians of the Galaxy Vol  2'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'G I  Joe Retaliation'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'G I  Joe The Rise of Cobra'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'A I  Artificial Intelligence'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'Once Upon a Time in Hollywood'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'Batman V Superman Dawn Of Justice'.lower() and str(year) == str(film['year']) \
-                    and film['kind'].lower() == 'movie':
-                return film.movieID
-            elif str(title.lower()) == 'Dr  Strangelove or How I Learned to Stop Worrying and Love the Bomb'.lower() \
-                    and str(year) == str(film['year']) and film['kind'].lower() == 'movie':
-                return film.movieID
-            else:
-                continue
-        return None
-
-    except ia.IMDbError as err:
-        print(err)
-
-
-def get_rev_movie_id(title, year, ctr):
+def get_movie_id(title, year, ctr):
     try:
         print(f'DEBUG -Title - {ctr} - {title}')
         movies = ia.search_movie(title)
         for index, film in enumerate(movies):
             if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' '). \
-                    replace('... ', ' ').rstrip() \
+                    replace('...', '  ').rstrip() \
                     and str(year) == str(film['year']) \
                     and film['kind'].lower() == 'movie' \
                     or film['kind'].lower() == 'tv movie' \
@@ -125,7 +74,6 @@ def get_rev_movie_id(title, year, ctr):
 
     except ia.IMDbError as err:
         print(err)
-        raise
 
 
 def get_movie(_id):
@@ -143,13 +91,12 @@ def isfloat(value):
         return False
 
 
-def create_movie(file):
-    ctr = 0
+def create_movie(file, counter):
     movie_title = str(file['title'])
     movie_year = file['year']
     movie_path = file['path']
     try:
-        imdb_movie_id = get_rev_movie_id(movie_title, movie_year,ctr)
+        imdb_movie_id = get_movie_id(movie_title, movie_year, counter)
         if imdb_movie_id is not None:
             is_added = Movie.get_movie_by_imdb_id(imdb_movie_id)
             if is_added is None:

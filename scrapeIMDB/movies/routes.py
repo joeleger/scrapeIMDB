@@ -105,16 +105,19 @@ def delete_movie(movie_id):
 @movies.route('/movie/scrape')
 @login_required
 def scrape_imdb():
+    counter = 0
     flat_dir_src = Config.FLAT_FILE_SOURCE
     coll_dir_src = Config.COLLECTIONS_FILE_SOURCE
     try:
         files = get_files(flat_dir_src)
         for file in files:
-            create_movie(file)
+            counter += 1
+            create_movie(file, counter)
 
         files2 = get_file_sets(coll_dir_src)
         for file2 in files2:
-            create_movie(file2)
+            counter += 1
+            create_movie(file2, counter)
         return redirect(url_for('main.home'))
     except Exception as err:
         print(err)
@@ -124,4 +127,4 @@ def scrape_imdb():
 def movie_player(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
 
-    return render_template('movie_player.html', movie=_movie, title=_movie.title,)
+    return render_template('movie_player.html', movie=_movie, title=_movie.title, )
