@@ -3,7 +3,7 @@
         <h1 class="mb-3">Movies by {{ user.username }} ({{ movies.total }})</h1>
         {% for movie in movies.items %}
             <article class="media content-section">
-                <img class="img-responsive mt-4 mr-4" src={{movie.poster_url }} alt="{{movie.title}}">
+                <a href="{{ url_for('movies.movie_player', movie_id=movie.id) }}"><img class="img-responsive mt-4 mr-4" src={{movie.poster_url }} alt="{{movie.title}}"></a>
               <div class="media-body">
                 <div class="article-metadata">
                      <a class="mr-2" href="#">{{ movie.year }} Rating - {{ movie.rating}} </a>
