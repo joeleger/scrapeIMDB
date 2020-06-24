@@ -17,3 +17,13 @@ database various attributes about the film, namely:
 
 Goal is to add more user input configuration.
 There is a configuration class called Config. Set your file locations that you would like to scrape in this class. 
+
+Requirements:
+File types: We use the HTML <video> element to render video on a web page. This HTML element will render the following film types:
+MP4. WEBM and OGG.
+Naming convention for motion picture files.
+The file name is required to be in the following format:
+    Title of movie + space(year).extension
+    example - Once Upon a Time... In Hollywood should be named as follows:
+        Once Upon a Time... In Hollywood (2019).mp4
+We natively support .mp4, webm and ogg extensions, but with future parameterized configuration you will be able to extend this.
