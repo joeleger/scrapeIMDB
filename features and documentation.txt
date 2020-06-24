@@ -1,4 +1,5 @@
 . Search facility
+. Bug - UI disable Scrape link once clicked till it finishes. One request only till completion. Perhaps use asynch io or a task queue as well. Since this process takes a while.
 . Scrape TV Series content
 . Scrape Music content.
 . Web service that renders movie files. (See point below - 'Launch video file to play film from the app.'
