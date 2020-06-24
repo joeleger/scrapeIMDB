@@ -20,10 +20,18 @@ There is a configuration class called Config. Set your file locations that you w
 
 ### Requirements:
 File types: We use the HTML <video> element to render video on a web page. This HTML element will render the following film types:
-MP4. WEBM and OGG.
-Naming convention for motion picture files.
+1. **MP4**
+2. **WEBM**
+3. **OGG** 
+
+ We recommend that you use the above file types only.
+ 
+
+### Naming convention for motion picture files.
 The file name is required to be in the following format:
-    Title of movie + space(year).extension
-    example - Once Upon a Time... In Hollywood should be named as follows:
-        Once Upon a Time... In Hollywood (2019).mp4
+    *Title of movie* + *space(year).extension*
+- Example
+  *Once Upon a Time... In Hollywood*  The file name should be set as follows:
+- **Once Upon a Time... In Hollywood (2019).mp4**
+        
 We natively support .mp4, webm and ogg extensions, but with future parameterized configuration you will be able to extend this.
