@@ -1,13 +1,14 @@
 . Search facility
-. Scrape sub-folders for movie content function
 . Scrape TV Series content
 . Scrape Music content.
+. Web service that renders movie files. (See point below - 'Launch video file to play film from the app.'
+. Scrape sub-folders for movie content function - DONE
 . Delete from app also removes file from hard drive - DONE
  Launch video file to play film from the app - DONE
     This is done. I am rendering a template to play the movie file using an html 5 video canvas. To play the movie
-     I am using a javascript workaround that utilizes a form input tag to locate the specific movie file on the file system. The video tag
-     src attribute will not for security purposes locate a file source. It expects an http source. So perhaps a future feature could be to
-     implement an http web server that serves up the movie files.
+     I am using a javascript workaround that uses a form input tag to locate the specific movie file on the file system. The video tag
+     'src' attribute will not because of system security render a file on mouse click which is what I desire the application to ultimately do. The 'srd' attribute expects  an http context.
+     So perhaps a future feature will be to implement an http web server that serves up the movie file.
 
 Required naming for movie files.
 file name needs to be in following format:
