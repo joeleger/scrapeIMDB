@@ -1,8 +1,9 @@
-. Search facility
+.
 . Bug - UI disable Scrape link once clicked till it finishes. One request only till completion. Perhaps use asynch io or a task queue as well. Since this process takes a while.
 . Scrape TV Series content
-. Scrape Music content.
 . Web service that renders movie files. (See point below - 'Launch video file to play film from the app.'
+. Scrape Music content. - Separate app for this. NOT DOING This app is as it is titled for dealing with data on IMDB. Tunes do not live there.
+. Search facility using natural language search with Elasticsearch - Done
 . Scrape sub-folders for movie content function - DONE
 . Delete from app also removes file from hard drive - DONE
  Launch video file to play film from the app - DONE
