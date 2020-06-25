@@ -6,6 +6,8 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from scrapeIMDB.config import Config
+from elasticsearch import Elasticsearch
+
 
 load_dotenv('.env')
 
@@ -26,6 +28,8 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    app.elasticsearch = Elasticsearch(Config.ELASTICSEARCH_URL, timeout=30) \
+        if Config.ELASTICSEARCH_URL else None
 
     from scrapeIMDB.users.routes import users
     from scrapeIMDB.movies.routes import movies

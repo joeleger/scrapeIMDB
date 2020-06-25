@@ -1,6 +1,7 @@
 import datetime
 import os
-
+import pprint
+from scrapeIMDB import search
 import imdb
 
 from scrapeIMDB import create_app
@@ -102,7 +103,7 @@ def get_rev_movie_id(title, year, ctr):
         print(f'DEBUG -Title - {ctr} - {title}')
         movies = ia.search_movie(title)
         for index, film in enumerate(movies):
-            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' ').\
+            if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' '). \
                     replace('...', '  ').rstrip() \
                     and str(year) == str(film['year']) \
                     and film['kind'].lower() == 'movie' \
@@ -124,22 +125,28 @@ def get_movie(_id):
         print(err)
 
 
-title = "Once Upon a Time... in Hollywood"
-title = title.replace('.', ' ').rstrip()
+def get_movie_advanced(_id):
+    try:
+        return ia.search_movie_advanced(_id)
+    except ia.IMDbError as err:
+        print(err)
 
 
-# # 1583421
+# title = "Once Upon a Time... in Hollywood"
+# title = title.replace('.', ' ').rstrip()
+#
+# pp = pprint.PrettyPrinter(width=80, compact=False)
+# # # 1583421
 # imdb_id = get_movie_id(title, 2019, 1)
-# movie = get_movie(imdb_id)
+# movie = get_movie_advanced(imdb_id)
 # print(imdb_id)
+
 # print(movie['title'])
 # print(movie['kind'])
-
-
 # for m in movie:
-#     print(m['directors'])
+#     pp.pprint(m)
 
-# pp = pprint.PrettyPrinter(width=80, compact=False)
+
 # ctr = 0
 
 
@@ -162,4 +169,8 @@ def check_db_title_year():
 
 app = create_app()
 with app.app_context():
-    check_db_title_year()
+    Movie.reindex()
+    # app.elasticsearch.indices.delete('movie')
+    query, total = Movie.search('gangster', 1, 5)
+    print(total)
+    print(query.all())

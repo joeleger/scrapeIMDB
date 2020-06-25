@@ -1,3 +1,4 @@
+from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FloatField, TextAreaField
 from wtforms.validators import DataRequired, Length
@@ -17,3 +18,14 @@ class NewMovieForm(FlaskForm):
     runtime = IntegerField('Runtime', validators=[DataRequired()])
     poster_url = StringField('Poster Url', validators=[DataRequired(), Length(max=500)])
     submit = SubmitField('Save')
+
+
+class SearchForm(FlaskForm):
+    q = StringField('Search', validators=[DataRequired()])
+
+    def __init__(self, *args, **kwargs):
+        if 'formdata' not in kwargs:
+            kwargs['formdata'] = request.args
+        if 'csrf_enabled' not in kwargs:
+            kwargs['csrf_enabled'] = False
+        super(SearchForm, self).__init__(*args, **kwargs)
