@@ -7,7 +7,7 @@ from scrapeIMDB import db
 from scrapeIMDB.config import Config
 from scrapeIMDB.models import Movie
 from scrapeIMDB.movies.forms import NewMovieForm
-from scrapeIMDB.movies.utils import convert, get_files, create_movie, get_file_sets
+from scrapeIMDB.movies.utils import convert, get_files, create_movie
 
 movies = Blueprint('movies', __name__)
 
@@ -106,18 +106,15 @@ def delete_movie(movie_id):
 @login_required
 def scrape_imdb():
     counter = 0
-    flat_dir_src = Config.FLAT_FILE_SOURCE
-    coll_dir_src = Config.COLLECTIONS_FILE_SOURCE
+    # TODO: create a Configuration model for this and other configurable types then obtain this
+    #  from db instead of hardcoded
+    file_sources = [Config.FLAT_FILE_SOURCE, Config.COLLECTIONS_FILE_SOURCE]
     try:
-        files = get_files(flat_dir_src)
-        for file in files:
-            counter += 1
-            create_movie(file, counter)
-
-        files2 = get_file_sets(coll_dir_src)
-        for file2 in files2:
-            counter += 1
-            create_movie(file2, counter)
+        for src in file_sources:
+            file_collection = get_files(src)
+            for f in file_collection:
+                counter += 1
+                create_movie(f, counter)
         return redirect(url_for('main.home'))
     except Exception as err:
         print(err)

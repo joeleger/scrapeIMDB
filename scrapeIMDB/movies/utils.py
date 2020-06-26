@@ -20,34 +20,38 @@ def mid(s, offset, amount):
     return s[offset:offset + amount]
 
 
-def get_files(source):
-    file_list = []
-    for file in os.listdir(source):
-        if file.endswith(".mkv") or file.endswith(".mp4") or file.endswith(".avi"):
-            file_title = os.path.splitext(file)[0]  # remove the extension
-            file_title = file_title.replace(".", " ")  # Remove any periods in text of title
-            pos_of_first_brace = len(file_title) - 5
-            file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
-            file_path = source + "\\" + file  # get the full file path to launch a video
-            file_title = file_title[:-7]  # strip the year and brackets from the end of the title
-            file_list.append({'path': file_path,
-                              'title': file_title,
-                              'year': file_year
-                              })
-    return file_list
+def folders_in(path_to_parent):
+    for full_name in os.listdir(path_to_parent):
+        if os.path.isdir(os.path.join(path_to_parent, full_name)):
+            yield os.path.join(path_to_parent, full_name)
 
 
-def get_file_sets(source):
+def get_files(path_to_source):
     file_list = []
-    for subdir, dirs, files in os.walk(source):
-        for filename in files:
-            file_path = subdir + os.sep + filename
-            if file_path.endswith(".mp4") or file_path.endswith(".webm") or file_path.endswith(".ogg"):
-                file_title = os.path.splitext(filename)[0]  # remove the extension
+    contains_sub_dirs = folders_in(path_to_source)
+    if contains_sub_dirs:
+        for subdir, dirs, files in os.walk(path_to_source):
+            for filename in files:
+                file_path = subdir + os.sep + filename
+                if file_path.endswith(('.mp4', '.webm', '.ogg', '.ogv', '.oga', '.ogx', '.ogm', '.spx', '.opus')):
+                    file_title = os.path.splitext(filename)[0]  # remove the extension
+                    file_title = file_title.replace(".", " ")  # Remove any periods in text of title
+                    pos_of_first_brace = len(file_title) - 5
+                    file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
+                    file_path = subdir + "\\" + filename  # get the full file path to launch a video
+                    file_title = file_title[:-7]  # strip the year and brackets from the end of the title
+                    file_list.append({'path': file_path,
+                                      'title': file_title,
+                                      'year': file_year
+                                      })
+    else:  # no sub directories
+        for f in os.listdir(path_to_source):
+            if f.endswith(('.mp4', '.webm', '.ogg', '.ogv', '.oga', '.ogx', '.ogm', '.spx', '.opus')):
+                file_title = os.path.splitext(f)[0]  # remove the extension
                 file_title = file_title.replace(".", " ")  # Remove any periods in text of title
                 pos_of_first_brace = len(file_title) - 5
                 file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
-                file_path = subdir + "\\" + filename  # get the full file path to launch a video
+                file_path = path_to_source + "\\" + f  # get the full file path to launch a video
                 file_title = file_title[:-7]  # strip the year and brackets from the end of the title
                 file_list.append({'path': file_path,
                                   'title': file_title,
@@ -123,4 +127,4 @@ def create_movie(file, counter):
         db.session.rollback()
         raise
     finally:
-        db.session.close()  # optional, depends on use case
+        db.session.close()
