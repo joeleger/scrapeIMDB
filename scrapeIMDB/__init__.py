@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from scrapeIMDB.config import Config
 from elasticsearch import Elasticsearch
 
-
 load_dotenv('.env')
 
 db = SQLAlchemy()

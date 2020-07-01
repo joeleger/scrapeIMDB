@@ -4,13 +4,12 @@ import pprint
 
 from flask import current_app
 
-from scrapeIMDB import search
+# from scrapeIMDB import search
 import imdb
 
 from scrapeIMDB import create_app
 from scrapeIMDB.config import Config
 from scrapeIMDB.movies.utils import create_movie
-
 ia = imdb.IMDb()
 
 debug_path = Config.DEBUG_FILE_LOCATION
@@ -121,14 +120,16 @@ def get_movie_id(title, year, ctr):
                 continue
         return None
 
-    except ia.IMDbError as err:
+    except ia.Error as err:
         print(err)
 
 
 def get_movie(_id):
     try:
+        movie = ia.get_movie_episodes(_id)
+        print(movie)
         return ia.get_movie(_id)
-    except ia.IMDbError as err:
+    except Exception as err:
         print(err)
 
 
@@ -160,7 +161,12 @@ with app.app_context():
 # else:
 #     for dir in sub_dirs:
 #         print(dir)
-
+title = '300.Rise.of.an.Empire'.replace('.', ' ').rsplit()
+imdb_id = get_movie_id(title, 2014, 1)
+movie = get_movie(imdb_id)
+print(imdb_id)
+print(movie['title'])
+print(movie['kind'])
 # files = get_rev_files(debug_path)
 # for file in files:
 #     movie_title = str(file['title'])
