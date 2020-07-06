@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from scrapeIMDB import db, create_app
 from scrapeIMDB.config import Config
 from scrapeIMDB.models import Movie
-from scrapeIMDB.movies.forms import NewMovieForm
+from scrapeIMDB.movies.forms import NewMovieForm, UpdateMovieForm
 from scrapeIMDB.movies.utils import convert, get_files, create_movie
 
 movies = Blueprint('movies', __name__)
@@ -54,9 +54,8 @@ def update_movie(movie_id):
     if _movie.author != current_user:
         app.logger.warning(f'The user {current_user} is not authenticated to update this film.')
         abort(403)
-    form = NewMovieForm()
+    form = UpdateMovieForm()
     if form.validate_on_submit():
-        _movie.imdb_id = form.imdb_id.data
         _movie.file_path = form.file_path.data
         _movie.title = form.title.data
         _movie.year = form.year.data
@@ -73,7 +72,6 @@ def update_movie(movie_id):
         app.logger.debug(f'The movie titled {_movie.title} was updated successfully.')
         return redirect(url_for('movies.movie', movie_id=_movie.id))
     elif request.method == 'GET':
-        form.imdb_id.data = _movie.imdb_id
         form.file_path.data = _movie.file_path
         form.title.data = _movie.title
         form.year.data = _movie.year
@@ -85,7 +83,7 @@ def update_movie(movie_id):
         form.plot.data = _movie.plot
         form.runtime.data = _movie.runtime
         form.poster_url.data = _movie.poster_url
-    return render_template('create_movie.html', title='Update Movie',
+    return render_template('update_movie.html', title='Update Movie',
                            form=form, legend='Update Movie')
 
 

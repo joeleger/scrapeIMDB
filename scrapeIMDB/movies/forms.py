@@ -26,6 +26,22 @@ class NewMovieForm(FlaskForm):
             raise ValidationError('That imdb_id already exists. You can only add the movie once!')
 
 
+class UpdateMovieForm(FlaskForm):
+    # imdb_id = StringField('IMDB_ID', render_kw={'readonly': True})
+    file_path = StringField('File Path', validators=[DataRequired(), Length(max=300)])
+    title = StringField('Title', validators=[DataRequired(), Length(max=500)])
+    year = IntegerField('Year', validators=[DataRequired()])
+    genre = StringField('Genre', validators=[DataRequired(), Length(max=100)])
+    rating = FloatField('Rating', validators=[DataRequired()])
+    actors = StringField('Cast', validators=[DataRequired(), Length(max=5000)])
+    directors = StringField('Directors', validators=[DataRequired(), Length(max=300)])
+    writers = StringField('Writers', validators=[DataRequired(), Length(max=300)])
+    plot = TextAreaField('Plot', validators=[DataRequired()])
+    runtime = IntegerField('Runtime', validators=[DataRequired()])
+    poster_url = StringField('Poster Url', validators=[DataRequired(), Length(max=500)])
+    submit = SubmitField('Save')
+
+
 class SearchForm(FlaskForm):
     q = StringField('Search', validators=[DataRequired()])
 
