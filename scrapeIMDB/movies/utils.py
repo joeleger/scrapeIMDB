@@ -60,9 +60,9 @@ def get_files(path_to_source):
     return file_list
 
 
-def get_movie_id(title, year, ctr):
+def get_movie_id(title, year, app):
     try:
-        print(f'DEBUG -Title - {ctr} - {title}')
+        # app.logger.debug(f' {ctr} - {title}')
         movies = ia.search_movie(title)
         for index, film in enumerate(movies):
             if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' '). \
@@ -77,34 +77,26 @@ def get_movie_id(title, year, ctr):
         return None
 
     except ia.IMDbError as err:
-        print(err)
+        app.logging(f'Error in get movie id - {err}')
 
 
-def get_movie(_id):
+def get_movie(_id, app):
     try:
         return ia.get_movie(_id)
     except ia.IMDbError as err:
-        print(err)
+        app.logging(f'Error in get movie - {err}')
 
 
-def isfloat(value):
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-
-
-def create_movie(file, counter):
+def create_movie(file, app):
     movie_title = str(file['title'])
     movie_year = file['year']
     movie_path = file['path']
     try:
-        imdb_movie_id = get_movie_id(movie_title, movie_year, counter)
+        imdb_movie_id = get_movie_id(movie_title, movie_year, app)
         if imdb_movie_id is not None:
             is_added = Movie.get_movie_by_imdb_id(imdb_movie_id)
             if is_added is None:
-                imdb_movie_data = get_movie(imdb_movie_id)
+                imdb_movie_data = get_movie(imdb_movie_id, app)
                 actors_string = ', '.join(map(str, imdb_movie_data['cast']))
                 directors_string = ', '.join(map(str, imdb_movie_data['directors']))
                 writers_string = ', '.join(map(str, imdb_movie_data['writer']))
@@ -124,6 +116,7 @@ def create_movie(file, counter):
         else:
             return
     except Exception as err:
+        app.logging.error(f'Error occurred in create movie - {err}')
         db.session.rollback()
         raise
     finally:

@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from scrapeIMDB.config import Config
 from elasticsearch import Elasticsearch
+import logging # from logging import FileHandler, DEBUG, Formatter
 
 load_dotenv('.env')
 
@@ -20,7 +21,17 @@ mail = Mail()
 
 
 def create_app(config_class=Config):
+
     app = Flask(__name__)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.WARNING)
+    log_name = 'logging_scrapeIMDB.log'
+    file_handler = logging.FileHandler(log_name)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+    file_handler.setFormatter(formatter)
+    if not logger.handlers:
+        logger.addHandler(file_handler)
+
     app.config.from_object(Config)
     db.init_app(app)
     migrate.init_app(app, db)

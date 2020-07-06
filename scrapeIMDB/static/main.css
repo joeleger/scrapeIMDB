@@ -103,3 +103,8 @@ input {
   background-color: red;
   color: white;
 }
+
+a.disable {
+  pointer-events: none;
+  cursor: default;
+}

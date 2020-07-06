@@ -1,15 +1,17 @@
 import os
+
 from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 
-from scrapeIMDB import db
+from scrapeIMDB import db, create_app
 from scrapeIMDB.config import Config
 from scrapeIMDB.models import Movie
 from scrapeIMDB.movies.forms import NewMovieForm
 from scrapeIMDB.movies.utils import convert, get_files, create_movie
 
 movies = Blueprint('movies', __name__)
+app = create_app()
 
 
 @movies.route('/movie/new', methods=['GET', 'POST'])
@@ -22,10 +24,15 @@ def new_movie():
                      directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
                      runtime=form.runtime.data,
                      poster_url=form.poster_url.data, author=current_user)
-        db.session.add(film)
-        db.session.commit()
-        flash(f'Your movie has been added!', 'success')
-        return redirect(url_for('main.home'))
+        try:
+            db.session.add(film)
+        except Exception as err:
+            app.logger.error(f'Error occurred with adding a new movie - {err}')
+        else:
+            db.session.commit()
+            flash(f'Your movie has been added!', 'success')
+            app.logger.debug(f'The movie titled {film.title} was added successfully.')
+            return redirect(url_for('main.home'))
     return render_template('create_movie.html', title='New Movie', form=form, legend='Add Movie')
 
 
@@ -45,6 +52,7 @@ def movie(movie_id):
 def update_movie(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
     if _movie.author != current_user:
+        app.logger.warning(f'The user {current_user} is not authenticated to update this film.')
         abort(403)
     form = NewMovieForm()
     if form.validate_on_submit():
@@ -62,6 +70,7 @@ def update_movie(movie_id):
         _movie.poster_url = form.poster_url.data
         db.session.commit()
         flash(f'Your movie has been updated!', 'success')
+        app.logger.debug(f'The movie titled {_movie.title} was updated successfully.')
         return redirect(url_for('movies.movie', movie_id=_movie.id))
     elif request.method == 'GET':
         form.imdb_id.data = _movie.imdb_id
@@ -92,9 +101,12 @@ def delete_movie(movie_id):
         db.session.delete(_movie)
         db.session.commit()
         flash(f'Your movie is deleted!', 'success')
+        app.logger.debug(f'The movie, {_movie.title} was deleted successfully!')
     except OSError as e:
         flash(f'Error: {e.filename} - {e.strerror}', 'danger')
         # remove the db record even if the file does not exist in file system
+        app.logger.error(
+            f'The movie titled,"{_movie.title}" was deleted successfully however the file does not exist')
         db.session.delete(_movie)
         db.session.commit()
         flash(f'Your movie is deleted!', 'success')
@@ -110,14 +122,16 @@ def scrape_imdb():
     #  from db instead of hardcoded
     file_sources = [Config.FLAT_FILE_SOURCE, Config.COLLECTIONS_FILE_SOURCE]
     try:
+        app.logger.debug(f'Starting IMDB scrape.')
         for src in file_sources:
             file_collection = get_files(src)
             for f in file_collection:
-                counter += 1
-                create_movie(f, counter)
+                # counter += 1
+                create_movie(f, app)
+        app.logger.debug(f'Ending IMDB scrape.')
         return redirect(url_for('main.home'))
     except Exception as err:
-        print(err)
+        app.logger.error(f'Scraping Movie folder resulted in an error - {err}')
 
 
 @movies.route('/movie/player/<int:movie_id>')

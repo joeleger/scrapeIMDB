@@ -1,7 +1,8 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FloatField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, ValidationError
+from scrapeIMDB.models import Movie
 
 
 class NewMovieForm(FlaskForm):
@@ -18,6 +19,11 @@ class NewMovieForm(FlaskForm):
     runtime = IntegerField('Runtime', validators=[DataRequired()])
     poster_url = StringField('Poster Url', validators=[DataRequired(), Length(max=500)])
     submit = SubmitField('Save')
+
+    def validate_imdb_id(self, imdb_id):
+        film = Movie.query.filter_by(imdb_id=imdb_id.data).first()
+        if film:
+            raise ValidationError('That imdb_id already exists. You can only add the movie once!')
 
 
 class SearchForm(FlaskForm):
