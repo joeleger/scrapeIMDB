@@ -1,12 +1,13 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import render_template, url_for, flash, redirect, request, Blueprint, session
 from flask_login import login_user, current_user, logout_user, login_required
-from scrapeIMDB import db, bcrypt
+from scrapeIMDB import db, bcrypt, create_app
 from scrapeIMDB.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                     RequestResetForm, ResetPasswordForm)
 from scrapeIMDB.models import User, Movie
 from scrapeIMDB.users.utils import send_reset_email, save_picture
 
 users = Blueprint('users', __name__)
+app = create_app()
 
 
 @users.route('/register', methods=['GET', 'POST'])
@@ -17,11 +18,14 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Your account has now been created! You are now able to login.', 'success')
-        return redirect(url_for('users.login'))
-
+        try:
+            db.session.add(user)
+        except Exception as err:
+            app.logger.error(f'Error in attempting to register user {form.username.data} {err}.')
+        else:
+            db.session.commit()
+            flash(f'Your account has now been created! You are now able to login.', 'success')
+            return redirect(url_for('users.login'))
     return render_template('register.html', title='Register', form=form)
 
 
@@ -34,9 +38,12 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
+            session["username"] = user.username
             next_page = request.args.get('next')
+            app.logger.debug(f'User - { session["username"]} successfully logged in.')
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
+            app.logger.warning(f'User with email address - {form.email.data} unsuccessfully tried to log-in.')
             flash(f'Login was unsuccessful! Please check email and password.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
@@ -44,6 +51,9 @@ def login():
 @users.route('/logout')
 def logout():
     logout_user()
+    if session["username"]:
+        app.logger.debug(f'User - {session["username"]} logged out.')
+        session.pop("username", None)
     return redirect(url_for('main.home'))
 
 
@@ -57,6 +67,7 @@ def account():
             current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
+        app.logger.debug(f'Picture file name - {current_user.image_file}.')
         db.session.commit()
         flash(f'Your account has been updated!', 'success')
         return redirect(url_for('users.account'))

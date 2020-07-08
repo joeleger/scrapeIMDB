@@ -1,7 +1,7 @@
 import os
 
 from flask import (render_template, url_for, flash,
-                   redirect, request, abort, Blueprint)
+                   redirect, request, abort, Blueprint, session)
 from flask_login import current_user, login_required
 
 from scrapeIMDB import db, create_app
@@ -52,7 +52,7 @@ def movie(movie_id):
 def update_movie(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
     if _movie.author != current_user:
-        app.logger.warning(f'The user {current_user} is not authenticated to update this film.')
+        app.logger.warning(f'The user {session["username"]} is not authenticated to update film title {_movie.title}.')
         abort(403)
     form = UpdateMovieForm()
     if form.validate_on_submit():

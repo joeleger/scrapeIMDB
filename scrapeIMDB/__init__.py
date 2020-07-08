@@ -24,7 +24,7 @@ def create_app(config_class=Config):
 
     app = Flask(__name__)
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.WARNING)
+    logger.setLevel(logging.DEBUG)
     log_name = 'logging_scrapeIMDB.log'
     file_handler = logging.FileHandler(log_name)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
