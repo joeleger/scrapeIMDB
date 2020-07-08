@@ -135,5 +135,4 @@ def scrape_imdb():
 @movies.route('/movie/player/<int:movie_id>')
 def movie_player(movie_id):
     _movie = Movie.query.get_or_404(movie_id)
-
     return render_template('movie_player.html', movie=_movie, title=_movie.title, )

@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Search Results</h1>
     {% for movie in movies %}
-        <ul><a href="{{ url_for('movies.movie_player', movie_id=movie.id) }}"><span id="movie{{ movie.id }}">{{ movie.title }}</span></a></ul>
+        <ul><a href="{{ url_for('movies.movie', movie_id=movie.id) }}"><span id="movie{{ movie.id }}">{{ movie.title }}</span></a></ul>
     {% endfor %}
     <nav aria-label="...">
         <ul class="pager">

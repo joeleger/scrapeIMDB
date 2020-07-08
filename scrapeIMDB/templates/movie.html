@@ -6,8 +6,9 @@
                  <a class="mr-2" href="#">Year - {{ movie.year }} Rating - {{ movie.rating}}</a>
                 {% if movie.author == current_user %}
                     <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('movies.update_movie',movie_id=movie.id) }}">Update</a>
-                    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('movies.movie_player', movie_id=movie.id) }}">Play It</a>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('movies.update_movie', movie_id=movie.id) }}">Update</a>
+                        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
                 </div>
                 {% endif %}
             </div>
