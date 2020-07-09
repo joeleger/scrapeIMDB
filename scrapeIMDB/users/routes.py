@@ -84,7 +84,7 @@ def user_movies(username):
     user = User.query.filter_by(username=username).first_or_404()
     movies = Movie.query.filter_by(author=user) \
         .order_by(Movie.rating.desc(), Movie.title.desc()) \
-        .paginate(page=page, per_page=5)
+        .paginate(page=page, per_page=10)
     return render_template('user_movies.html', movies=movies, user=user)
 
 
