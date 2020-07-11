@@ -1,14 +1,18 @@
 import os
+import traceback
 
 from flask import (render_template, url_for, flash,
-                   redirect, request, abort, Blueprint, session)
+                   redirect, request, abort, Blueprint, session, current_app)
 from flask_login import current_user, login_required
 
 from scrapeIMDB import db, create_app
 from scrapeIMDB.config import Config
 from scrapeIMDB.models import Movie
 from scrapeIMDB.movies.forms import NewMovieForm, UpdateMovieForm
-from scrapeIMDB.movies.utils import convert, get_files, create_movie
+from scrapeIMDB.movies.utils import (convert, get_files, create_movie,
+                                     get_movie_file_path_list, save_movie_file,
+                                     delete_upload_source)
+
 
 movies = Blueprint('movies', __name__)
 app = create_app()
@@ -19,20 +23,27 @@ app = create_app()
 def new_movie():
     form = NewMovieForm()
     if form.validate_on_submit():
-        film = Movie(imdb_id=form.imdb_id.data, file_path=form.file_path.data, title=form.title.data,
-                     year=form.year.data, genre=form.genre.data, rating=form.rating.data, actors=form.actors.data,
-                     directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
-                     runtime=form.runtime.data,
-                     poster_url=form.poster_url.data, author=current_user)
-        try:
-            db.session.add(film)
-        except Exception as err:
-            app.logger.error(f'Error occurred with adding a new movie - {err}')
-        else:
-            db.session.commit()
-            flash(f'Your movie has been added!', 'success')
-            app.logger.debug(f'The movie titled {film.title} was added successfully.')
-            return redirect(url_for('main.home'))
+        file = form.movie_file.data
+        session["FileName"] = file.filename
+        app.logger.debug(f'file name is in Session object  = {session["FileName"]}')
+        if file:
+            files = []
+            files = get_movie_file_path_list(file.filename)
+            app.logger.debug(f'file path = {files[0]}')
+            created = create_movie(files[0], app, True, file)
+            if created:
+                flash(f'Your movie has been added!', 'success')
+                app.logger.debug(f'The movie was uploaded successfully.')
+                return redirect(url_for('main.home', file=session["FileName"]))
+            else:
+                app.logger.debug(f'Unable to upload movie.')
+                flash(f'Your movie has not been uploaded!', 'danger')
+
+        # film = Movie(imdb_id=form.imdb_id.data, file_path=form.file_path.data, title=form.title.data,
+        #              year=form.year.data, genre=form.genre.data, rating=form.rating.data, actors=form.actors.data,
+        #              directors=form.directors.data, writers=form.writers.data, plot=form.plot.data,
+        #              runtime=form.runtime.data,
+        #              poster_url=form.poster_url.data, author=current_user)
     return render_template('create_movie.html', title='New Movie', form=form, legend='Add Movie')
 
 
@@ -125,12 +136,13 @@ def scrape_imdb():
             file_collection = get_files(src)
             for f in file_collection:
                 # counter += 1
-                create_movie(f, app)
+                create_movie(f, app, False, None)
         app.logger.debug(f'Ending IMDB scrape.')
         return redirect(url_for('main.home'))
     except Exception as err:
-        app.logger.error(f'Scraping Movie folder resulted in an error - {err}')
-
+        app.logger.error(''.join(traceback.format_exception(etype=type(err), value=err, tb=err.__traceback__)))
+        flash(f'Scraping your movie folders resulted in an error try later!', 'success')
+        return redirect(url_for('main.home'))
 
 @movies.route('/movie/player/<int:movie_id>')
 def movie_player(movie_id):

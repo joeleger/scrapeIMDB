@@ -6,7 +6,7 @@ class Config:
     FLAT_FILE_SOURCE = 'F:\\Video\\\Movies\\_Flat_Structure'
     COLLECTIONS_FILE_SOURCE = 'F:\\Video\\Movies\\_Collections'
     DEBUG_FILE_LOCATION = 'F:\\Video\\Movies\\Debug'
-
+    UPLOAD_MOVIE_SOURCE = 'F:\\Video\\Movies\\Upload_Movie_Source'
     SECRET_KEY = environ.get("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = 'sqlite:///movieListing.db'
 
