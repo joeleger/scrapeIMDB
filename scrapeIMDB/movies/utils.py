@@ -1,13 +1,12 @@
 import datetime
 import os
+import traceback
+
 import imdb
-from flask import current_app
 from flask_login import current_user
+
 from scrapeIMDB import db, Config
 from scrapeIMDB.models import Movie
-import traceback
-from werkzeug.utils import secure_filename
-
 
 ia = imdb.IMDb()
 
@@ -53,6 +52,7 @@ def get_files(path_to_source):
             for filename in files:
                 file_path = subdir + os.sep + filename
                 if file_path.endswith(('.mp4', '.webm', '.ogg', '.ogv', '.oga', '.ogx', '.ogm', '.spx', '.opus')):
+
                     file_title = os.path.splitext(filename)[0]  # remove the extension
                     file_title = file_title.replace(".", " ")  # Remove any periods in text of title
                     pos_of_first_brace = len(file_title) - 5
@@ -178,7 +178,7 @@ def delete_upload_source(movie_fn, app):
 
 
 def save_movie_file(form_movie_data, app):
-    movie_fn = secure_filename(form_movie_data.filename)
+    movie_fn = form_movie_data.filename
     movie_file_path = os.path.join(Config.FLAT_FILE_SOURCE, movie_fn)
     try:
         # save movie to destination source

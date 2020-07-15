@@ -1,133 +1,13 @@
-import datetime
-import os
-import pprint
-
-from flask import current_app
-
-# from scrapeIMDB import search
 import imdb
 
-from scrapeIMDB import create_app
 from scrapeIMDB.config import Config
-from scrapeIMDB.movies.utils import create_movie, get_movie_id
+from scrapeIMDB.movies.utils import get_movie_id, get_movie, get_movie_file_path_list, get_files
 
 ia = imdb.IMDb()
 
 debug_path = Config.DEBUG_FILE_LOCATION
 flat_src = Config.FLAT_FILE_SOURCE
 coll_src = Config.COLLECTIONS_FILE_SOURCE
-
-
-def convert(n):
-    return str(datetime.timedelta(seconds=n))
-
-
-def right(s, amount):
-    return s[-amount:]
-
-
-def mid(s, offset, amount):
-    return s[offset:offset + amount]
-
-
-def folders_in(path_to_parent):
-    for full_name in os.listdir(path_to_parent):
-        if os.path.isdir(os.path.join(path_to_parent, full_name)):
-            yield os.path.join(path_to_parent, full_name)
-
-
-def get_movie_file_path_list(_file):
-    file_list = []
-    file_title = os.path.splitext(_file)[0]  # remove the extension
-    file_title = file_title.replace(".", " ")  # Remove any periods in text of title
-    pos_of_first_brace = len(file_title) - 5
-    file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
-    file_path = Config.FLAT_FILE_SOURCE + "\\" + _file  # get the full file path to launch a video
-    file_title = file_title[:-7]  # strip the year and brackets from the end of the title
-    file_list.append({'path': file_path,
-                      'title': file_title,
-                      'year': file_year
-                      })
-    return file_list
-
-
-def get_files(path_to_source):
-    _file_List = []
-    contains_sub_dirs = folders_in(path_to_source)
-    if contains_sub_dirs:
-        for subdir, dirs, files in os.walk(path_to_source):
-            for filename in files:
-                file_path = subdir + os.sep + filename
-                if file_path.endswith(('.mp4', '.webm', '.ogg', '.ogv', '.oga', '.ogx', '.ogm', '.spx', '.opus')):
-                    file_title = os.path.splitext(filename)[0]  # remove the extension
-                    file_title = file_title.replace(".", " ")  # Remove any periods in text of title
-                    pos_of_first_brace = len(file_title) - 5
-                    file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
-                    file_path = subdir + "\\" + filename  # get the full file path to launch a video
-                    file_title = file_title[:-7]  # strip the year and brackets from the end of the title
-                    _file_List.append({'path': file_path,
-                                       'title': file_title,
-                                       'year': file_year
-                                       })
-    else:  # no sub directories
-        for f in os.listdir(path_to_source):
-            if f.endswith(('.mp4', '.webm', '.ogg', '.ogv', '.oga', '.ogx', '.ogm', '.spx', '.opus')):
-                file_title = os.path.splitext(f)[0]  # remove the extension
-                file_title = file_title.replace(".", " ")  # Remove any periods in text of title
-                pos_of_first_brace = len(file_title) - 5
-                file_year = mid(file_title, pos_of_first_brace, 4)  # get the year from the file title
-                file_path = path_to_source + "\\" + f  # get the full file path to launch a video
-                file_title = file_title[:-7]  # strip the year and brackets from the end of the title
-                _file_List.append({'path': file_path,
-                                   'title': file_title,
-                                   'year': file_year
-                                   })
-    return _file_List
-
-
-def scrape_imdb():
-    counter = 0
-    file_sources = [coll_src, flat_src]
-
-    try:
-        for src in file_sources:
-            file_collection = get_files(src)
-            for f in file_collection:
-                counter += 1
-                create_movie(f, counter)
-
-        return "Done"
-    except Exception as err:
-        print(err)
-
-
-# def get_movie_id(title, year, ctr):
-#     try:
-#         print(f'DEBUG -Title - {ctr} - {title}')
-#         movies = ia.search_movie(title)
-#         for index, film in enumerate(movies):
-#             if str(title.lower()).rstrip() == film['title'].lower().replace(':', '').replace('.', ' '). \
-#                     replace('...', '  ').rstrip() \
-#                     and str(year) == str(film['year']) \
-#                     and film['kind'].lower() == 'movie' \
-#                     or film['kind'].lower() == 'tv movie' \
-#                     or film['kind'].lower() == 'video movie':
-#                 return film.movieID
-#             else:
-#                 continue
-#         return None
-#
-#     except ia.Error as err:
-#         print(err)
-
-
-def get_movie(_id):
-    try:
-        movie = ia.get_movie_episodes(_id)
-        print(movie)
-        return ia.get_movie(_id)
-    except Exception as err:
-        print(err)
 
 
 file_to_upload = "Jonah.Hex (2010).mp4"
@@ -141,13 +21,15 @@ imdb_id = get_movie_id(title, int(year), 1)
 
 print(type(imdb_id))
 print(imdb_id)
+
+
 # for f in file_list:
 #     yield f
 #     print(f)
 # app = create_app()
 # with app.app_context():
 #     created = create_movie(file_list[0], app)
-#print(created)
+# print(created)
 
 
 # files = get_files(Config.FLAT_FILE_SOURCE)

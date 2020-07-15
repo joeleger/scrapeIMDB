@@ -22,7 +22,8 @@ def home():
         # delete needs to occur from result of redirect from create New Movie
         app.logger.debug(f'File to delete {file}')
         delete_upload_source(file, app)
-        session["FileName"] = None
+        session.pop('FileName', None)
+
     page = request.args.get('page', 1, type=int)
     movies = Movie.query.order_by(Movie.rating.desc(), Movie.title.desc()).paginate(page=page, per_page=10)
     # movies = Movie.query.order_by(Movie.title.asc()).paginate(page=page, per_page=100)
